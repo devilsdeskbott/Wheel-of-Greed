@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wheel of Greed 😈</title>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Metal+Mania&family=Nosifer&family=Pirata+One&family=New+Rocker&family=Eater&display=swap" rel="stylesheet">
+<style>
+/* Intentionally dark: noir red look in both light and dark modes */
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#070102;--card:#14040a;--ink:#ffe6dc;--mute:#c48a8a;--line:#5a0c1a;--red:#e01b32;--gold:#f2b632;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button,canvas{outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button:focus,button:focus-visible,canvas:focus{outline:none}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:20px 14px 44px;overflow-x:hidden;
+background:radial-gradient(ellipse at 50% -10%,#4a0610 0%,#1a0307 45%,var(--bg) 80%) fixed}
+.ember{position:fixed;bottom:-10px;width:5px;height:5px;border-radius:50%;background:#ff6a2a;box-shadow:0 0 8px 2px #ff4a1a;opacity:0;animation:rise 7s linear infinite;pointer-events:none}
+@keyframes rise{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}100%{opacity:0;transform:translateY(-95vh) translateX(24px)}}
+.box{max-width:440px;margin:0 auto;text-align:center;position:relative;z-index:1}
+.dev{font-size:54px;filter:drop-shadow(0 0 18px #e01b32);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.1)}}
+h1{font-family:Creepster,"Metal Mania",Impact,fantasy;font-size:2.6rem;margin:2px 0 4px;line-height:1.1;letter-spacing:3px;font-weight:400}
+h1 span{text-shadow:0 0 14px currentColor}
+.nmw{display:flex;justify-content:center;align-items:center;gap:10px}
+.em{font-size:2.2rem}
+.name{font-family:Nosifer,Creepster,fantasy;font-size:2.5rem;line-height:1.4;background:linear-gradient(90deg,#ff1a3c,#ff7a1a,#f2b632,#ff1a3c);background-size:200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 4s linear infinite;filter:drop-shadow(0 0 12px rgba(224,27,50,.8))}
+@keyframes flow{to{background-position:200%}}
+.tag{font-family:"Metal Mania","Pirata One",fantasy;font-size:1.5rem;margin:0 0 18px;letter-spacing:1px}
+.card{background:linear-gradient(180deg,#1c0610,var(--card));border:1px solid var(--line);border-radius:20px;padding:18px 14px 20px;box-shadow:0 0 0 1px #000,0 12px 40px rgba(224,27,50,.2)}
+.card h2{font-family:Creepster,fantasy;margin:0 0 6px;font-size:1.8rem;color:var(--gold);letter-spacing:2px;font-weight:400}
+.rule{color:var(--mute);font-size:.9rem;line-height:1.45;margin:0 0 6px}
+.rule b{color:var(--red)}
+.arrow{font-size:30px;color:var(--red);text-shadow:0 0 12px var(--red);line-height:1;margin:6px 0 -14px;position:relative;z-index:2}
+.wrap{position:relative;width:min(320px,80vw);aspect-ratio:1;margin:0 auto 22px}
+.wrap canvas{width:100%;height:100%;border-radius:50%;transition:transform 4.4s cubic-bezier(.12,.6,.1,1);box-shadow:0 0 0 5px var(--gold),0 0 0 9px #5a0c1a,0 0 36px 6px rgba(224,27,50,.6)}
+.hub{position:absolute;inset:0;margin:auto;width:58px;height:58px;border-radius:50%;background:#14040a;border:3px solid var(--gold);display:grid;place-items:center;font-size:28px;box-shadow:0 0 14px var(--red);pointer-events:none}
+.left{color:var(--mute);font-size:.9rem;margin:0 0 10px}
+button{font:inherit;cursor:pointer;border:0;border-radius:999px;font-weight:800}
+.spin{background:linear-gradient(90deg,#8b0a1f,var(--red));color:#fff;font-size:1.2rem;padding:13px 44px;box-shadow:0 0 22px rgba(224,27,50,.65);border:1px solid #ff6a7a}
+.spin:active{transform:scale(.96)}
+.spin:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}

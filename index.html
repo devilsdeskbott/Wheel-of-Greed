@@ -40,3 +40,119 @@ button{font:inherit;cursor:pointer;border:0;border-radius:999px;font-weight:800}
 .spin{background:linear-gradient(90deg,#8b0a1f,var(--red));color:#fff;font-size:1.2rem;padding:13px 44px;box-shadow:0 0 22px rgba(224,27,50,.65);border:1px solid #ff6a7a}
 .spin:active{transform:scale(.96)}
 .spin:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.say{min-height:84px;margin:14px 0 6px;font-weight:400;font-size:1.5rem;line-height:1.35;padding:0 4px;font-family:"Pirata One",fantasy}
+.spin,.send{font-family:Creepster,fantasy;letter-spacing:2px;font-weight:400;font-size:1.4rem}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;min-height:40px}
+.chip{border:2px solid var(--line);border-radius:14px;padding:6px 12px;font-weight:800;background:transparent;color:var(--ink)}
+.chip.sel{border-color:var(--red);background:var(--red);color:#fff;box-shadow:0 0 12px var(--red)}
+.chip.gold{border-color:var(--gold)}
+.send{background:transparent;color:var(--gold);border:2px solid var(--gold);padding:12px 22px;margin-top:12px;box-shadow:0 0 14px rgba(242,182,50,.25)}
+.send:disabled{opacity:.3;cursor:not-allowed;box-shadow:none}
+#boom{position:fixed;inset:0;pointer-events:none;z-index:9}
+</style>
+</head>
+<body>
+<span class="ember" style="left:8%;animation-delay:0s"></span><span class="ember" style="left:24%;animation-delay:2s"></span>
+<span class="ember" style="left:45%;animation-delay:4s"></span><span class="ember" style="left:63%;animation-delay:1s"></span>
+<span class="ember" style="left:80%;animation-delay:3s"></span><span class="ember" style="left:92%;animation-delay:5s"></span>
+<div class="box">
+<div class="dev">😈</div>
+<div class="nmw"><span class="name">MAHI</span><span class="em">😈🔥</span></div>
+<h1><span style="color:#ff4d6a">Wheel</span> <span style="color:#f2b632">of</span> <span style="color:#4dbbff">Greed</span></h1>
+<p class="tag"><span style="color:#ff6fa5">Be naughty.</span> <span style="color:#f2b632">Be greedy.</span> <span style="color:#3ddc84">Pick your sins</span> 🔥</p>
+<div class="card">
+<h2>🎰 Wheel of Greed</h2>
+<p class="rule">Up to 3 spins. Only your <b>last spin</b> gets sent to him, so spin again and the old one is gone forever 😈</p>
+<div class="arrow">▼</div>
+<div class="wrap"><canvas id="cv"></canvas><div class="hub">😈</div></div>
+<div class="left" id="left"></div>
+<button class="spin" id="spin">Spin 🎰</button>
+<div class="say" id="say">🔥 Go on, MAHI, be greedy. The wheel is hungry…</div>
+<div class="chips" id="chips"></div>
+<button class="send" id="send" disabled>😈 Send my sins to him</button>
+</div>
+</div>
+<canvas id="boom"></canvas>
+
+<script>
+// Put his Telegram username (no @) to open his chat directly; leave empty to pick a contact
+var TG_USER="";
+var BOT_TOKEN="9018996943:AAEOGIIt5HjPt2MR8LHCohYWbCOOecORPts";
+var CHAT_ID=""; // his Telegram chat id (a number); until set, Send opens the normal Telegram share
+var SLICES=[{a:50,w:30000},{a:300,w:12000},{a:100,w:30000},{a:500,w:7000},{a:200,w:20000},{a:2000,w:1},{a:1000,w:999}];
+var TOTAL=100000, MAXSPIN=3;
+var COLS=["#8b0a1f","#1a0508","#c1121f","#2a070c","#a30d22","#14030a","#6e0a18"];
+var CONF=["#e01b32","#f2b632","#ff6a2a","#ffffff","#ff4d8d"];
+var LINES=[
+ {t:"Pink whisper: your next spin feels luckier… 🌸",c:"#ff6fa5"},
+ {t:"Golden dare: greedy girls always spin twice! 💛",c:"#f2b632"},
+ {t:"Blue-eyed hint: one more and who knows? 😏",c:"#4dbbff"},
+ {t:"Green light, gorgeous. Go again! 💚",c:"#3ddc84"},
+ {t:"Purple secret: the wheel is blushing, tease it once more… 💜",c:"#b68cff"},
+ {t:"Orange alert: your luck is warming up! 🧡",c:"#ff8a3d"},
+ {t:"Teal temptation: just one more tiny spin, pretty please? 🩵",c:"#2ee6c8"}
+];
+var DONE={t:"That was your last spin, MAHI, no more chances! Send it to him 💌",c:"#ff6fa5"};
+var FONTS=["Creepster,fantasy","'Metal Mania',fantasy","'Pirata One',fantasy","'New Rocker',fantasy","Eater,fantasy"];
+var st={rot:0,used:0,res:[],sel:-1,busy:false,li:Math.floor(Math.random()*LINES.length)};
+function rnd(n){var a=new Uint32Array(1);crypto.getRandomValues(a);return Math.floor(a[0]/4294967296*n)}
+function pick(){var r=rnd(TOTAL),s=0;for(var i=0;i<SLICES.length;i++){s+=SLICES[i].w;if(r<s)return i}return 0}
+function fmt(n){return "₹"+n.toLocaleString("en-IN")}
+var cv=document.getElementById("cv"),spin=document.getElementById("spin"),say=document.getElementById("say"),
+    chips=document.getElementById("chips"),left=document.getElementById("left"),send=document.getElementById("send");
+
+function draw(){
+ var S=700,c=cv.getContext("2d");cv.width=cv.height=S;var r=S/2,k=SLICES.length,ang=2*Math.PI/k;
+ for(var i=0;i<k;i++){
+  var s0=-Math.PI/2+i*ang;c.beginPath();c.moveTo(r,r);c.arc(r,r,r,s0,s0+ang);c.closePath();
+  c.fillStyle=SLICES[i].a===2000?"#f2b632":COLS[i%COLS.length];c.fill();
+  c.strokeStyle="rgba(242,182,50,.75)";c.lineWidth=4;c.stroke();
+  c.save();c.translate(r,r);c.rotate(s0+ang/2);c.textAlign="right";c.textBaseline="middle";
+  c.fillStyle=SLICES[i].a===2000?"#2a0a00":"#ffe6b0";c.font="46px Creepster,Georgia,serif";
+  c.fillText(SLICES[i].a===2000?"💎 ₹2000":fmt(SLICES[i].a),r-34,0);c.restore();
+ }
+}
+draw();if(document.fonts&&document.fonts.load){document.fonts.load("46px Creepster").then(draw)}
+
+function upd(){left.textContent="Spins left: "+(MAXSPIN-st.used)+" / "+MAXSPIN;spin.disabled=st.busy||st.used>=MAXSPIN;send.disabled=st.sel<0||st.busy}
+function chipsR(){chips.innerHTML="";st.res.forEach(function(v,i){var b=document.createElement("button");
+ b.className="chip"+(i===st.sel?" sel":"")+(v===2000?" gold":"");b.textContent=(i+1)+". "+(v===2000?"💎 ":"")+fmt(v);
+ b.disabled=true;b.style.cursor="default";if(i!==st.sel){b.style.opacity=".45";b.style.textDecoration="line-through"}chips.appendChild(b)})}
+
+spin.onclick=function(){
+ if(st.busy||st.used>=MAXSPIN)return;st.busy=true;st.used++;upd();
+ var i=pick(),k=SLICES.length,sa=360/k,center=(i+.5)*sa,jit=(Math.random()-.5)*sa*.7;
+ st.rot=Math.ceil(st.rot/360)*360+360*6+(360-center)+jit;cv.style.transform="rotate("+st.rot+"deg)";
+ say.textContent="🎶 Round and round she goes…";say.style.color="";say.style.fontFamily="'Pirata One',fantasy";
+ setTimeout(function(){
+  var v=SLICES[i].a;st.res.push(v);st.sel=st.res.length-1;st.busy=false;
+  if(v===2000){say.textContent="🎉💎 MAHI, ₹2000 TIP!!! A 1-in-1,00,000 miracle! Lucky, lucky girl!";say.style.color="#f2b632";say.style.fontFamily="Creepster,fantasy";boom()}
+  else{var L=st.used>=MAXSPIN?DONE:LINES[(st.li+st.used)%LINES.length];say.textContent="MAHI, "+fmt(v)+" landed! "+(st.used>=MAXSPIN?"":"Spin again and it’s gone forever! ")+L.t;say.style.color=L.c;say.style.fontFamily=FONTS[(st.li+st.used)%FONTS.length]}
+  chipsR();upd();
+ },4500);
+};
+send.onclick=function(){
+ var v=st.res[st.sel];
+ var msg="😈🔥 MAHI’s Wheel of Greed\nShe landed: "+(v===2000?"💎 ₹2000 TIP (1-in-1,00,000!)":fmt(v))+"\nSpins used: "+st.used+"/"+MAXSPIN+"\nTime to pay up, handsome 😘";
+ var u=TG_USER?"https://t.me/"+TG_USER+"?text="+encodeURIComponent(msg):"https://t.me/share/url?url="+encodeURIComponent(location.href)+"&text="+encodeURIComponent(msg);
+ if(BOT_TOKEN&&CHAT_ID){
+  send.disabled=true;
+  fetch("https://api.telegram.org/bot"+BOT_TOKEN+"/sendMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:CHAT_ID,text:msg})})
+  .then(function(r){return r.json()})
+  .then(function(d){if(d.ok){say.style.fontFamily="Creepster,fantasy";say.style.color="#3ddc84";say.textContent="Sent to him! 😈💌"}else{send.disabled=false;window.open(u,"_blank")}})
+  .catch(function(){send.disabled=false;window.open(u,"_blank")});
+  return;
+ }
+ window.open(u,"_blank");
+};
+upd();
+
+function boom(){
+ var c=document.getElementById("boom"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;
+ var p=[];for(var i=0;i<180;i++)p.push({x:Math.random()*c.width,y:-20,vx:(Math.random()-.5)*4,vy:2+Math.random()*5,s:5+Math.random()*7,c:CONF[i%CONF.length]});
+ var f=0;(function go(){x.clearRect(0,0,c.width,c.height);p.forEach(function(q){q.x+=q.vx;q.y+=q.vy;x.fillStyle=q.c;x.fillRect(q.x,q.y,q.s,q.s)});
+  if(++f<240)requestAnimationFrame(go);else x.clearRect(0,0,c.width,c.height)})();
+}
+</script>
+</body>
+</html>

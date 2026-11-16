@@ -137,10 +137,10 @@ send.onclick=function(){
  var u=TG_USER?"https://t.me/"+TG_USER+"?text="+encodeURIComponent(msg):"https://t.me/share/url?url="+encodeURIComponent(location.href)+"&text="+encodeURIComponent(msg);
  if(BOT_TOKEN&&CHAT_ID){
   send.disabled=true;
-  fetch("https://api.telegram.org/bot"+BOT_TOKEN+"/sendMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:CHAT_ID,text:msg})})
+  fetch("https://api.telegram.org/bot"+BOT_TOKEN+"/sendMessage?chat_id="+CHAT_ID+"&text="+encodeURIComponent(msg))
   .then(function(r){return r.json()})
   .then(function(d){if(d.ok){say.style.fontFamily="Creepster,fantasy";say.style.color="#3ddc84";say.textContent="Sent to him! 😈💌"}else{send.disabled=false;window.open(u,"_blank")}})
-  .catch(function(){send.disabled=false;window.open(u,"_blank")});
+  .catch(function(){send.disabled=false;say.style.color="#ff6fa5";say.textContent="Couldn’t reach Telegram directly, opening it instead 💔";window.open(u,"_blank")});
   return;
  }
  window.open(u,"_blank");

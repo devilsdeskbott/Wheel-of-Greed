@@ -49,6 +49,12 @@ button{font:inherit;cursor:pointer;border:0;border-radius:999px;font-weight:800}
 .send{background:transparent;color:var(--gold);border:2px solid var(--gold);padding:12px 22px;margin-top:12px;box-shadow:0 0 14px rgba(242,182,50,.25)}
 .send:disabled{opacity:.3;cursor:not-allowed;box-shadow:none}
 #boom{position:fixed;inset:0;pointer-events:none;z-index:9}
+#pop{position:fixed;inset:0;background:rgba(0,0,0,.82);align-items:center;justify-content:center;z-index:20;padding:20px}
+.pb{max-width:340px;background:linear-gradient(180deg,#2a0610,#14040a);border:2px solid var(--gold);border-radius:22px;padding:22px 18px;text-align:center;box-shadow:0 0 40px rgba(224,27,50,.7)}
+.pe{font-size:46px}
+.pb h3{font-family:Creepster,fantasy;font-weight:400;font-size:2rem;letter-spacing:2px;color:var(--gold);margin:4px 0 8px}
+.pb p{font-family:"Pirata One",fantasy;font-size:1.4rem;line-height:1.35;margin:0 0 16px}
+.pb button{display:block;margin:10px auto 0}
 </style>
 </head>
 <body>
@@ -72,6 +78,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:999px;font-weight:800}
 <button class="send" id="send" disabled>😈 Send my sins to him</button>
 </div>
 </div>
+<div id="pop" style="display:none"><div class="pb"><div class="pe">😈</div><h3>Not so fast, MAHI…</h3><p>₹2000 comes with a price 🔥<br>Send me a Spicy pic baby 📸 first!</p><button class="spin" id="popYes">I sent it 😘</button><button class="send" id="popNo">Not yet 🙈</button></div></div>
 <canvas id="boom"></canvas>
 
 <script>
@@ -95,6 +102,14 @@ var LINES=[
 var DONE={t:"That was your last spin, MAHI, no more chances! Send it to him 💌",c:"#ff6fa5"};
 var FONTS=["Creepster,fantasy","'Metal Mania',fantasy","'Pirata One',fantasy","'New Rocker',fantasy","Eater,fantasy"];
 var st={rot:0,used:0,res:[],sel:-1,busy:false,li:Math.floor(Math.random()*LINES.length)};
+// Monthly jackpot: one random day each month, her FIRST spin lands on ₹2000. Later spins that day land below ₹300.
+var TEST_WORD="test2k"; // open the page with ?test2k to test the jackpot any day
+function monthDay(y,m){var s="MAHI"+y+"-"+m,h=7,i;for(i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return 1+h%28}
+function ymKey(){var d=new Date();return "m2k"+d.getFullYear()+"-"+(d.getMonth()+1)}
+function jackToday(){if(location.search.indexOf(TEST_WORD)>-1)return true;var d=new Date();if(d.getDate()!==monthDay(d.getFullYear(),d.getMonth()+1))return false;try{if(localStorage.getItem(ymKey()))return false}catch(e){}return true}
+function claim(){if(location.search.indexOf(TEST_WORD)>-1)return;try{localStorage.setItem(ymKey(),"1")}catch(e){}}
+var LOWIDX=[0,2,4]; // slices ₹50, ₹100, ₹200
+function nextIdx(){if(st.used===1&&jackToday()){st.jack=true;claim();return 5}if(st.jack)return LOWIDX[rnd(3)];return pick()}
 function rnd(n){var a=new Uint32Array(1);crypto.getRandomValues(a);return Math.floor(a[0]/4294967296*n)}
 function pick(){var r=rnd(TOTAL),s=0;for(var i=0;i<SLICES.length;i++){s+=SLICES[i].w;if(r<s)return i}return 0}
 function fmt(n){return "₹"+n.toLocaleString("en-IN")}
@@ -121,18 +136,19 @@ function chipsR(){chips.innerHTML="";st.res.forEach(function(v,i){var b=document
 
 spin.onclick=function(){
  if(st.busy||st.used>=MAXSPIN)return;st.busy=true;st.used++;upd();
- var i=pick(),k=SLICES.length,sa=360/k,center=(i+.5)*sa,jit=(Math.random()-.5)*sa*.7;
+ var i=nextIdx(),k=SLICES.length,sa=360/k,center=(i+.5)*sa,jit=(Math.random()-.5)*sa*.7;
  st.rot=Math.ceil(st.rot/360)*360+360*6+(360-center)+jit;cv.style.transform="rotate("+st.rot+"deg)";
  say.textContent="🎶 Round and round she goes…";say.style.color="";say.style.fontFamily="'Pirata One',fantasy";
  setTimeout(function(){
   var v=SLICES[i].a;st.res.push(v);st.sel=st.res.length-1;st.busy=false;
-  if(v===2000){say.textContent="🎉💎 MAHI, ₹2000 TIP!!! A 1-in-1,00,000 miracle! Lucky, lucky girl!";say.style.color="#f2b632";say.style.fontFamily="Creepster,fantasy";boom()}
-  else{var L=st.used>=MAXSPIN?DONE:LINES[(st.li+st.used)%LINES.length];say.textContent="MAHI, "+fmt(v)+" landed! "+(st.used>=MAXSPIN?"":"Spin again and it’s gone forever! ")+L.t;say.style.color=L.c;say.style.fontFamily=FONTS[(st.li+st.used)%FONTS.length]}
+  if(v===2000){say.textContent=st.jack?"🎉💎 MAHI, ₹2000 TIP!!! Keep it… or get greedy and spin again 😈":"🎉💎 MAHI, ₹2000 TIP!!! A 1-in-1,00,000 miracle! Lucky, lucky girl!";say.style.color="#f2b632";say.style.fontFamily="Creepster,fantasy";boom()}
+  else{var L=st.jack?{t:"Greed has a price, MAHI… the wheel took it back 😈",c:"#ff6fa5"}:(st.used>=MAXSPIN?DONE:LINES[(st.li+st.used)%LINES.length]);say.textContent="MAHI, "+fmt(v)+" landed! "+(st.used>=MAXSPIN?"":"Spin again and it’s gone forever! ")+L.t;say.style.color=L.c;say.style.fontFamily=FONTS[(st.li+st.used)%FONTS.length]}
   chipsR();upd();
  },4500);
 };
 send.onclick=function(){
  var v=st.res[st.sel];
+ if(v===2000&&!st.pic){document.getElementById("pop").style.display="flex";return}
  var msg="😈🔥 MAHI’s Wheel of Greed\nShe landed: "+(v===2000?"💎 ₹2000 TIP (1-in-1,00,000!)":fmt(v))+"\nSpins used: "+st.used+"/"+MAXSPIN+"\nTime to pay up, handsome 😘";
  var u=TG_USER?"https://t.me/"+TG_USER+"?text="+encodeURIComponent(msg):"https://t.me/share/url?url="+encodeURIComponent(location.href)+"&text="+encodeURIComponent(msg);
  if(BOT_TOKEN&&CHAT_ID){
@@ -145,6 +161,8 @@ send.onclick=function(){
  }
  window.open(u,"_blank");
 };
+document.getElementById("popYes").onclick=function(){st.pic=true;document.getElementById("pop").style.display="none";send.onclick()};
+document.getElementById("popNo").onclick=function(){document.getElementById("pop").style.display="none"};
 upd();
 
 function boom(){
